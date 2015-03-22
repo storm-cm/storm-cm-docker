@@ -2,12 +2,12 @@
 # Otherwise evaluates to a non-empty string.
 #
 define test-exec
-$(strip $(shell if $1 >/dev/null; then echo OK; fi))
+$(filter OK,$(shell if $1 >/dev/null; then echo OK; fi))
 endef
 
 # Test cases
 #
-ifneq ($(strip $(call test-exec,true)),OK)
+ifneq ($(call test-exec,true),OK)
 $(error test-exec true FAIL)
 endif
 ifneq ($(call test-exec,false),)
