@@ -1,7 +1,4 @@
-FROM storm-cm/debian
+FROM storm-cm/host
 
-COPY oracle-java8-jre_8u40_amd64.deb /root/
-
-RUN \
-    dpkg -i /root/oracle-java8-jre_8u40_amd64.deb \
-    && rm /root/oracle-java8-jre_8u40_amd64.deb
+RUN apt-get -q update \
+    && apt-get -qy install adduser cloudera-manager-server

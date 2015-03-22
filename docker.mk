@@ -18,5 +18,5 @@ docker-image-$1:
 endef
 
 define docker-build
-$(DOCKER) build -t $(patsubst docker-image-%,%,$@) $(patsubst %/Dockerfile,%,$(filter %/Dockerfile,$^))
+$(DOCKER) build --force-rm -t $(patsubst docker-image-%,%,$@) $(patsubst %/Dockerfile,%,$(filter %/Dockerfile,$^))
 endef

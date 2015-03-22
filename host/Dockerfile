@@ -1,7 +1,9 @@
-FROM storm-cm/manager
+FROM storm-cm/debian
 
+COPY oracle-java8-jre_8u40_amd64.deb /root/
 RUN \
-    apt-get -q update \
-    && apt-get -qy install \
-        --no-install-recommends \
-        openssh-server
+    dpkg -i /root/oracle-java8-jre_8u40_amd64.deb
+
+COPY archive.key /root/
+RUN apt-key add /root/archive.key
+COPY cloudera.list /etc/apt/sources.list.d/
