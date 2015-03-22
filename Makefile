@@ -9,13 +9,17 @@ SHELL := /bin/bash
 .PHONY: all
 all: $(call test-docker-image,storm-cm/manager) $(call test-docker-image,storm-cm/db)
 
-.PHONY: docker-image-storm-cm/host
-docker-image-storm-cm/host: $(call test-docker-image,storm-cm/debian) oracle-java8-jre_8u40_amd64.deb host/Dockerfile
-	cp -t manager $(filter %.deb,$^)
-	$(call docker-build)
-
 .PHONY: docker-image-storm-cm/manager
 docker-image-storm-cm/manager: $(call test-docker-image,storm-cm/host) manager/Dockerfile
+	$(call docker-build)
+
+.PHONY: docker-image-storm-cm/agent
+docker-image-storm-cm/agent: $(call test-docker-image,storm-cm/host) agent/Dockerfile
+	$(call docker-build)
+
+.PHONY: docker-image-storm-cm/host
+docker-image-storm-cm/host: $(call test-docker-image,storm-cm/debian) oracle-java8-jre_8u40_amd64.deb host/Dockerfile
+	cp -t host $(filter %.deb,$^)
 	$(call docker-build)
 
 .PHONY: docker-image-storm-cm/db
