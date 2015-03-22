@@ -2,29 +2,20 @@ include docker.mk
 include rootcmd.mk
 include test-exec.mk
 
+DOCKER_IMAGES := storm-cm/manager storm-cm/agent storm-cm/db
 SHELL := /bin/bash
-
 , := ,
 
 .PHONY: all
-all: $(call test-docker-image,storm-cm/manager) $(call test-docker-image,storm-cm/db)
+all: docker-image-storm-cm/manager docker-image-storm-cm/agent docker-image-storm-cm/db
 
-.PHONY: docker-image-storm-cm/manager
-docker-image-storm-cm/manager: $(call test-docker-image,storm-cm/host) manager/Dockerfile
-	$(call docker-build)
+docker-image-storm-cm/manager: $(call test-docker-image,storm-cm/host)
 
-.PHONY: docker-image-storm-cm/agent
-docker-image-storm-cm/agent: $(call test-docker-image,storm-cm/host) agent/Dockerfile
-	$(call docker-build)
+docker-image-storm-cm/agent: $(call test-docker-image,storm-cm/host)
 
-.PHONY: docker-image-storm-cm/host
-docker-image-storm-cm/host: $(call test-docker-image,storm-cm/debian) oracle-java8-jre_8u40_amd64.deb host/Dockerfile
+docker-image-storm-cm/host: $(call test-docker-image,storm-cm/debian)
+docker-image-storm-cm/host-local: oracle-java8-jre_8u40_amd64.deb
 	cp -t host $(filter %.deb,$^)
-	$(call docker-build)
-
-.PHONY: docker-image-storm-cm/db
-docker-image-storm-cm/db: db/Dockerfile
-	$(call docker-build)
 
 oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 	$(ROOTCMD) docker run \
@@ -50,3 +41,5 @@ $(eval $(call docker-mkimage,storm-cm/debian,\
         wheezy \
         http://http.debian.net/debian \
 ))
+
+$(foreach i,$(DOCKER_IMAGES),$(eval $(call docker-image,$i)))

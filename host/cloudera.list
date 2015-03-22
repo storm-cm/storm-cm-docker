@@ -1,1 +1,1 @@
-deb http://archive.cloudera.com/cm5/debian/wheezy/amd64/cm wheezy-cm5 contrib
+deb http://archive.cloudera.com/cm5/debian/wheezy/amd64/cm wheezy-cm5.3 contrib
