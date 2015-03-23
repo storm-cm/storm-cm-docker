@@ -1,6 +1,8 @@
 manager:
     build: manager
-    #hostname: manager
+    hostname: manager # has to be set so that the agent can fetch parcels, else it tries to use the default hostname which does not resolve
+    environment:
+        - CMF_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     ports:
         - "7180:7180"
     links:
