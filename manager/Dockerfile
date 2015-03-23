@@ -4,9 +4,8 @@ RUN apt-get -q update \
     && apt-get -qy install \
         --no-install-recommends \
         cloudera-manager-server \
+        netcat-openbsd \
     && apt-get clean
-
-COPY db.properties /etc/cloudera-scm-server/
 
 #VOLUME /var/log/cloudera-scm-server
 #VOLUME /opt/cloudera/parcel-repo
