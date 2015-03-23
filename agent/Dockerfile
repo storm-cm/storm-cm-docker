@@ -4,7 +4,8 @@ RUN apt-get -q update \
     && apt-get -qy install \
         --no-install-recommends \
         python2.7 \
-        cloudera-manager-agent
+        cloudera-manager-agent \
+    && apt-get clean
 
 RUN mv /etc/cloudera-scm-agent/config.ini /etc/cloudera-scm-agent/config.ini.dpkg-dist
 COPY config.ini /etc/cloudera-scm-agent/

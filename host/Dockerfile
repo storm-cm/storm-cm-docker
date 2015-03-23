@@ -15,4 +15,5 @@ RUN apt-get -q update \
         --no-install-recommends \
         adduser \
     && apt-get -qy install \
-        cloudera-manager-daemons
+        cloudera-manager-daemons \
+    && apt-get clean

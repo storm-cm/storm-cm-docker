@@ -1,0 +1,29 @@
+manager:
+    build: manager
+    hostname: manager
+    ports:
+        - "7180:7180"
+    links:
+        - db
+    volumes:
+        - parcel-repo:/opt/cloudera/parcel-repo
+
+db:
+    build: db
+
+#mon:
+#    build: agent
+#    links:
+#        - db
+
+#front:
+#    build: agent
+#    hostname: front0
+#    links:
+#        - manager
+
+back:
+    build: agent
+    hostname: back0
+    links:
+        - manager
