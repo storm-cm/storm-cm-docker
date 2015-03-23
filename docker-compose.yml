@@ -1,6 +1,6 @@
 manager:
     build: manager
-    hostname: manager
+    #hostname: manager
     ports:
         - "7180:7180"
     links:
@@ -11,19 +11,8 @@ manager:
 db:
     build: db
 
-#mon:
-#    build: agent
-#    links:
-#        - db
-
-#front:
-#    build: agent
-#    hostname: front0
-#    links:
-#        - manager
-
-back:
+agent:
     build: agent
-    hostname: back0
+    #hostname: agent0
     links:
         - manager
