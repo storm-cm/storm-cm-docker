@@ -17,6 +17,6 @@ db:
 
 agent:
     build: agent
-    #hostname: agent0
+    hostname: agent0 # docker-generated hostnames sometimes start with a digit, trigger <https://issues.cloudera.org/browse/DISTRO-638>
     links:
         - manager
