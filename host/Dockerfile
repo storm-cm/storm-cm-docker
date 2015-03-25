@@ -7,6 +7,7 @@ RUN \
     && dpkg-divert --add --local --rename /usr/lib/jvm/jre-8-oracle-x64/lib/security/US_export_policy.jar
 COPY local_policy.jar     /usr/lib/jvm/jre-8-oracle-x64/lib/security/
 COPY US_export_policy.jar /usr/lib/jvm/jre-8-oracle-x64/lib/security/
+ENV JAVA_HOME /usr/lib/jvm/jre-8-oracle-x64
 
 COPY archive.key /root/
 RUN apt-key add /root/archive.key

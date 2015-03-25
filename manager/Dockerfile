@@ -10,8 +10,6 @@ RUN apt-get -q update \
 #VOLUME /var/log/cloudera-scm-server
 #VOLUME /opt/cloudera/parcel-repo
 
-#ENV JAVA_HOME /usr/lib/jvm/jdk-8-oracle-x64/jre
-ENV JAVA_HOME /usr/lib/jvm/jre-8-oracle-x64
 ADD entry.bash /
 ENTRYPOINT ["/entry.bash"]
 EXPOSE 7180
