@@ -1,1 +1,5 @@
-set ts=8 sts=4 sw=4 et
+if &ft == "make"
+    set ts=4 sts=4 sw=4 noet
+else
+    set ts=8 sts=4 sw=4 et
+endif
