@@ -24,8 +24,27 @@ SHELL := /bin/bash
 #	$(call docker-build)
 
 .PHONY: docker_storm-cm/host
-docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb
+docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb host/local_policy.jar host/US_export_policy.jar
 	$(call docker-build)
+
+host/local_policy.jar: host/jce_policy-8.zip
+
+host/US_export_policy.jar: host/jce_policy-8.zip
+
+host/jce_policy-8.zip: $(call test-docker-image,storm-cm/debian)
+	$(ROOTCMD) docker run \
+		-t \
+		--rm \
+		-v $(abspath $(dir $@)):/build \
+		-w /tmp \
+		storm-cm/debian \
+		bash -c $$'\
+			apt-get -q update; \
+			apt-get -qy install --no-install-recommends ca-certificates wget unzip; \
+			wget --header \'Cookie: oraclelicense=accept-securebackup-cookie\' https://edelivery.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip; \
+			unzip -j -d . jce_policy-8.zip UnlimitedJCEPolicyJDK8/{local,US_export}_policy.jar; \
+			mv -t /build *.jar jce_policy-8.zip; \
+		'
 
 host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 	$(ROOTCMD) docker run \
