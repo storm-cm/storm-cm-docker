@@ -1,1 +1,5 @@
 *.deb
+*.gpg
+*.jar
+*.zip
+/parcel-repo/

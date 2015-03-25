@@ -1,7 +1,9 @@
 ifeq ($(UID),0)
-    DOCKER := docker
+	DOCKER := docker
+	DOCKERCOMPOSE := docker-compose
 else
-    DOCKER := sudo -g docker docker
+	DOCKER := sudo -g docker docker
+	DOCKERCOMPOSE := sudo -g docker $(shell command -v docker-compose)
 endif
 
 define test-docker-image
@@ -12,8 +14,8 @@ define docker-mkimage
 .PHONY: docker_$1
 docker_$1:
 	$(ROOTCMD) \
-            /usr/share/docker.io/contrib/mkimage.sh \
-            -t $(1) \
+		/usr/share/docker.io/contrib/mkimage.sh \
+		-t $(1) \
 	    $2
 endef
 
