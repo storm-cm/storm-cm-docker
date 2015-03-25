@@ -9,8 +9,7 @@ COPY local_policy.jar     /usr/lib/jvm/jre-8-oracle-x64/lib/security/
 COPY US_export_policy.jar /usr/lib/jvm/jre-8-oracle-x64/lib/security/
 ENV JAVA_HOME /usr/lib/jvm/jre-8-oracle-x64
 
-COPY archive.key /root/
-RUN apt-key add /root/archive.key
+COPY cloudera.gpg /etc/apt/trusted.gpg.d/
 COPY cloudera.list /etc/apt/sources.list.d/
 # Adduser is installed separately so that it will be configured (hence putting
 # /etc/adduser.conf into place) before it is run by

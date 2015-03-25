@@ -24,8 +24,22 @@ SHELL := /bin/bash
 #	$(call docker-build)
 
 .PHONY: docker_storm-cm/host
-docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb host/local_policy.jar host/US_export_policy.jar
+docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb host/local_policy.jar host/US_export_policy.jar host/cloudera.gpg
 	$(call docker-build)
+
+host/cloudera.gpg: $(call test-docker-image,storm-cm/debian)
+	$(ROOTCMD) docker run \
+		-t \
+		--rm \
+		-v $(abspath $(dir $@)):/build \
+		-w /tmp \
+		storm-cm/debian \
+		bash -c $$'\
+			set -x; \
+			gpg --no-default-keyring --keyring $$(readlink -f $(notdir $@)) --import < /build/archive.key; \
+			chmod 0644 $(notdir $@); \
+			mv -t /build $(notdir $@); \
+		'
 
 host/local_policy.jar: host/jce_policy-8.zip
 
