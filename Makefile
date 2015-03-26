@@ -69,7 +69,7 @@ host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 			set -eux; \
 			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
 			apt-get -q update; \
-			apt-get -qy install --no-install-recommends ca-certificates java-package/wheezy-backports wget; \
+			apt-get -qy install --no-install-recommends ca-certificates java-package/wheezy-backports gcc wget; \
 			wget --progress=dot:mega --header \'Cookie: oraclelicense=accept-securebackup-cookie\' https://edelivery.oracle.com/otn-pub/java/jdk/8u40-b26/jre-8u40-linux-x64.tar.gz; \
 			yes | su -s /bin/sh -c \'make-jpkg jre-8u40-linux-x64.tar.gz\' nobody; \
 			mv -t /build $(notdir $@); \
