@@ -1,5 +1,10 @@
+db:
+    image: postgres:9.4
+    environment:
+        - POSTGRES_PASSWORD=postgres
+
 manager:
-    build: manager
+    image: storm-cm/manager
     hostname: manager # has to be set so that the agent can fetch parcels, else it tries to use the default hostname which does not resolve
     environment:
         - CMF_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 # XXX does CMF_SERVER_ARGS work
@@ -10,13 +15,8 @@ manager:
     volumes:
         - parcel-repo:/opt/cloudera/parcel-repo
 
-db:
-    image: postgres:9.4
-    environment:
-        - POSTGRES_PASSWORD=postgres
-
 agent:
-    build: agent
+    image: storm-cm/agent
     hostname: agent0 # docker-generated hostnames sometimes start with a digit, trigger <https://issues.cloudera.org/browse/DISTRO-638>
     links:
         - manager

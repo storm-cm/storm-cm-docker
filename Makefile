@@ -6,8 +6,15 @@ include rootcmd.mk
 include test-exec.mk
 
 .PHONY: all
-all: docker_storm-cm/host
-	$(DOCKERCOMPOSE) build
+all: docker_storm-cm/manager docker_storm-cm/agent
+
+.PHONY: docker_storm-cm/manager
+docker_storm-cm/manager: docker_storm-cm/host
+	$(call docker-build)
+
+.PHONY: docker_storm-cm/agent
+docker_storm-cm/agent: docker_storm-cm/host
+	$(call docker-build)
 
 .PHONY: docker_storm-cm/host
 docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb host/local_policy.jar host/US_export_policy.jar host/cloudera.gpg
