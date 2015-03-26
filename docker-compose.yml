@@ -3,11 +3,18 @@ db:
     environment:
         - POSTGRES_PASSWORD=postgres
 
-manager:
+# There is a setting in CM that lets us change the hostname that it gives out
+# to clients, however the server must be restarted after it is set. So instead
+# we rely on 'the' fully-qualified hostname matching the DNS entries that
+# dnsdock generates for us.
+manager0:
     image: storm-cm/manager
-    hostname: manager # has to be set so that the agent can fetch parcels, else it tries to use the default hostname which does not resolve
+    hostname: manager0
+    domainname: manager.docker
+    dns: 172.17.42.1
     environment:
         - CMF_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 # XXX does CMF_SERVER_ARGS work
+        - DNSDOCK_NAME=manager0
     ports:
         - "7180:7180"
     links:
@@ -15,8 +22,20 @@ manager:
     volumes:
         - parcel-repo:/opt/cloudera/parcel-repo
 
-agent:
+# docker-generated hostnames sometimes start with a digit, trigger
+# <https://issues.cloudera.org/browse/DISTRO-638>
+front0:
     image: storm-cm/agent
-    hostname: agent0 # docker-generated hostnames sometimes start with a digit, trigger <https://issues.cloudera.org/browse/DISTRO-638>
-    links:
-        - manager
+    hostname: front0
+    domainname: agent.docker
+    dns: 172.17.42.1
+    environment:
+        - DNSDOCK_NAME=front0
+
+back0:
+    image: storm-cm/agent
+    hostname: back0
+    domainname: agent.docker
+    dns: 172.17.42.1
+    environment:
+        - DNSDOCK_NAME=back0
