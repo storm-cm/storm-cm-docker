@@ -8,6 +8,37 @@ include test-exec.mk
 .PHONY: all
 all: docker_storm-cm/manager docker_storm-cm/agent
 
+.PHONY: up
+up: db.cid manager.cid
+
+DOCKER_RUN := $(DOCKER) run -d \
+	--dns=172.17.42.1
+
+db.cid:
+	$(DOCKER_RUN) \
+		--cidfile=$@ \
+		-e POSTGRES_PASSWORD=postgres \
+		-P \
+		postgres:9.4
+
+manager.cid: db.cid
+	$(DOCKER_RUN) \
+		--cidfile=$@ \
+		--link='$(shell cat db.cid):db' \
+		storm-cm/manager
+
+agent%.cid: manager.cid db.cid
+	$(DOCKER_RUN) \
+		--cidfile=$@ \
+		--link='$(shell cat db.cid):db' \
+		storm-cm/agent
+
+.PHONY: up_manager
+up_manager:
+	$(DOCKER) run -d \
+		-n $(INSTANCE)-manager \
+		--link=
+
 .PHONY: docker_storm-cm/manager
 docker_storm-cm/manager: docker_storm-cm/host
 	$(call docker-build)
