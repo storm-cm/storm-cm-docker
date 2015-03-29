@@ -1,9 +1,7 @@
-FROM storm-cm/debian
+FROM storm-cm/host.tmp
 
-COPY oracle-java8-jre_8u40_amd64.deb /root/
 RUN \
-    dpkg -i /root/oracle-java8-jre_8u40_amd64.deb \
-    && dpkg-divert --add --local --rename /usr/lib/jvm/jre-8-oracle-x64/lib/security/local_policy.jar \
+    dpkg-divert --add --local --rename /usr/lib/jvm/jre-8-oracle-x64/lib/security/local_policy.jar \
     && dpkg-divert --add --local --rename /usr/lib/jvm/jre-8-oracle-x64/lib/security/US_export_policy.jar
 COPY local_policy.jar     /usr/lib/jvm/jre-8-oracle-x64/lib/security/
 COPY US_export_policy.jar /usr/lib/jvm/jre-8-oracle-x64/lib/security/

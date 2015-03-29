@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := build
 SHELL := /bin/bash
 , := ,
 
@@ -5,8 +6,9 @@ include docker.mk
 include rootcmd.mk
 include test-exec.mk
 
-.PHONY: all
-all: docker_storm-cm/manager docker_storm-cm/agent
+down_%:
+	$(DOCKER) rm -f -v $(shell cat $*.cid)
+	rm -f $*.cid
 
 .PHONY: up
 up: db.cid manager.cid
@@ -18,13 +20,14 @@ db.cid:
 	$(DOCKER_RUN) \
 		--cidfile=$@ \
 		-e POSTGRES_PASSWORD=postgres \
-		-P \
 		postgres:9.4
 
 manager.cid: db.cid
 	$(DOCKER_RUN) \
 		--cidfile=$@ \
 		--link='$(shell cat db.cid):db' \
+		-P \
+		--volume='$(abspath parcel-repo):/opt/cloudera/parcel-repo' \
 		storm-cm/manager
 
 agent%.cid: manager.cid db.cid
@@ -33,11 +36,8 @@ agent%.cid: manager.cid db.cid
 		--link='$(shell cat db.cid):db' \
 		storm-cm/agent
 
-.PHONY: up_manager
-up_manager:
-	$(DOCKER) run -d \
-		-n $(INSTANCE)-manager \
-		--link=
+.PHONY: build
+build: docker_storm-cm/manager docker_storm-cm/agent
 
 .PHONY: docker_storm-cm/manager
 docker_storm-cm/manager: docker_storm-cm/host
@@ -48,17 +48,18 @@ docker_storm-cm/agent: docker_storm-cm/host
 	$(call docker-build)
 
 .PHONY: docker_storm-cm/host
-docker_storm-cm/host: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb host/local_policy.jar host/US_export_policy.jar host/cloudera.gpg
+docker_storm-cm/host: $(call test-docker-image,storm-cm/host.tmp) $(addprefix host/,local_policy.jar US_export_policy.jar cloudera.gpg)
 	$(call docker-build)
+	$(DOCKER) rmi storm-cm/host.tmp
 
 host/cloudera.gpg: $(call test-docker-image,storm-cm/debian)
 	$(DOCKER) run \
 		-t \
 		--rm \
 		-v $(abspath $(dir $@)):/build \
-		-w /tmp \
+		-w /root \
 		storm-cm/debian \
-		bash -c $$'\
+		-c $$'\
 			set -x; \
 			gpg --no-default-keyring --keyring $$(readlink -f $(notdir $@)) --import < /build/archive.key; \
 			chmod 0644 $(notdir $@); \
@@ -76,9 +77,10 @@ host/jce_policy-8.zip: $(call test-docker-image,storm-cm/debian)
 		-t \
 		--rm \
 		-v $(abspath $(dir $@)):/build \
-		-w /tmp \
+		-w /root \
 		storm-cm/debian \
-		bash -c $$'\
+		-c $$'\
+			set -eu; \
 			apt-get -q update; \
 			apt-get -qy install --no-install-recommends ca-certificates wget unzip; \
 			wget \
@@ -89,14 +91,38 @@ host/jce_policy-8.zip: $(call test-docker-image,storm-cm/debian)
 			mv -t /build jce_policy-8.zip; \
 		'
 
+docker_storm-cm/host.tmp: $(call test-docker-image,storm-cm/debian) host/oracle-java8-jre_8u40_amd64.deb
+	set -eu; \
+		if [[ -f host.tmp.cid ]]; then \
+			$(DOCKER) rm -v $$(<host.tmp.cid) || :; \
+			rm host.tmp.cid; \
+		fi
+	$(DOCKER) run \
+		--cidfile=host.tmp.cid \
+		-i \
+		-w /root \
+		storm-cm/debian \
+		bash -c $$'\
+			set -eu; \
+			deb='$(notdir $(filter %.deb,$^))'; \
+			cat /dev/stdin > "$$deb"; \
+			ls -l "$$deb"; \
+			dpkg -i "$$deb"; \
+		' < $(filter %.deb,$^)
+	$(DOCKER) commit \
+		$$(<host.tmp.cid) \
+		$(patsubst docker_%,%,$@)
+	$(DOCKER) rm -v $$(<host.tmp.cid)
+	rm host.tmp.cid
+
 host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 	$(DOCKER) run \
 		-t \
 		--rm \
 		-v $(abspath $(dir $@)):/build \
-		-w /tmp \
+		-w /root \
 		storm-cm/debian \
-		bash -c $$'\
+		-c $$'\
 			set -eux; \
 			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
 			apt-get -q update; \
