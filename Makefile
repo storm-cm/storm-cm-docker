@@ -59,7 +59,7 @@ host/cloudera.gpg: $(call test-docker-image,storm-cm/debian)
 		-v $(abspath $(dir $@)):/build \
 		-w /root \
 		storm-cm/debian \
-		-c $$'\
+		bash -c $$'\
 			set -x; \
 			gpg --no-default-keyring --keyring $$(readlink -f $(notdir $@)) --import < /build/archive.key; \
 			chmod 0644 $(notdir $@); \
@@ -79,7 +79,7 @@ host/jce_policy-8.zip: $(call test-docker-image,storm-cm/debian)
 		-v $(abspath $(dir $@)):/build \
 		-w /root \
 		storm-cm/debian \
-		-c $$'\
+		bash -c $$'\
 			set -eu; \
 			apt-get -q update; \
 			apt-get -qy install --no-install-recommends ca-certificates wget unzip; \
@@ -122,7 +122,7 @@ host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 		-v $(abspath $(dir $@)):/build \
 		-w /root \
 		storm-cm/debian \
-		-c $$'\
+		bash -c $$'\
 			set -eux; \
 			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
 			apt-get -q update; \
