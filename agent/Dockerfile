@@ -1,7 +1,7 @@
 FROM storm-cm/host
 
 RUN apt-get -q update \
-    && apt-get -qy install \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qy install \
         --no-install-recommends \
         python2.7 \
         cloudera-manager-agent \

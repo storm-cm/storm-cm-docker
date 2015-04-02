@@ -50,7 +50,6 @@ docker_storm-cm/agent: docker_storm-cm/host
 .PHONY: docker_storm-cm/host
 docker_storm-cm/host: $(call test-docker-image,storm-cm/host.tmp) $(addprefix host/,local_policy.jar US_export_policy.jar cloudera.gpg)
 	$(call docker-build)
-	$(DOCKER) rmi storm-cm/host.tmp
 
 host/cloudera.gpg: $(call test-docker-image,storm-cm/debian)
 	$(DOCKER) run \
@@ -82,7 +81,7 @@ host/jce_policy-8.zip: $(call test-docker-image,storm-cm/debian)
 		bash -c $$'\
 			set -eu; \
 			apt-get -q update; \
-			apt-get -qy install --no-install-recommends ca-certificates wget unzip; \
+			DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends ca-certificates wget unzip; \
 			wget \
 				--header \'Cookie: oraclelicense=accept-securebackup-cookie\' \
 				https://edelivery.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip; \
@@ -126,7 +125,7 @@ host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 			set -eux; \
 			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
 			apt-get -q update; \
-			apt-get -qy install --no-install-recommends ca-certificates java-package/wheezy-backports gcc wget; \
+			DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends ca-certificates java-package/wheezy-backports gcc wget; \
 			wget --progress=dot:mega --header \'Cookie: oraclelicense=accept-securebackup-cookie\' https://edelivery.oracle.com/otn-pub/java/jdk/8u40-b26/jre-8u40-linux-x64.tar.gz; \
 			yes | su -s /bin/sh -c \'make-jpkg jre-8u40-linux-x64.tar.gz\' nobody; \
 			mv -t /build $(notdir $@); \

@@ -13,9 +13,9 @@ COPY cloudera.list /etc/apt/sources.list.d/
 # /etc/adduser.conf into place) before it is run by
 # cloudera-manager-daemons.preinst.
 RUN apt-get -q update \
-    && apt-get -qy install \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qy install \
         --no-install-recommends \
         adduser \
-    && apt-get -qy install \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qy install \
         cloudera-manager-daemons \
     && apt-get clean
