@@ -114,7 +114,23 @@ docker_storm-cm/host.tmp: $(call test-docker-image,storm-cm/debian) host/oracle-
 	$(DOCKER) rm -v $$(<host.tmp.cid)
 	rm host.tmp.cid
 
-host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
+host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian) host/jre-8u40-linux-x64.tar.gz
+	$(DOCKER) run \
+		-t \
+		--rm \
+		-v $(abspath $(dir $@)):/build \
+		-w /tmp \
+		storm-cm/debian \
+		bash -c $$'\
+			set -eux; \
+			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
+			apt-get -q update; \
+			DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends java-package/wheezy-backports gcc; \
+			yes | su -s /bin/sh -c \'make-jpkg /build/jre-8u40-linux-x64.tar.gz\' nobody; \
+			mv -t /build $(notdir $@); \
+		'
+
+host/jre-8u40-linux-x64.tar.gz: $(call test-docker-image,storm-cm/debian)
 	$(DOCKER) run \
 		-t \
 		--rm \
@@ -123,11 +139,9 @@ host/oracle-java8-jre_8u40_amd64.deb: $(call test-docker-image,storm-cm/debian)
 		storm-cm/debian \
 		bash -c $$'\
 			set -eux; \
-			echo \'deb http://http.debian.net/debian wheezy-backports main contrib non-free\' > /etc/apt/sources.list.d/backports.list; \
 			apt-get -q update; \
-			DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends ca-certificates java-package/wheezy-backports gcc wget; \
+			DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends ca-certificates wget; \
 			wget --progress=dot:mega --header \'Cookie: oraclelicense=accept-securebackup-cookie\' https://edelivery.oracle.com/otn-pub/java/jdk/8u40-b26/jre-8u40-linux-x64.tar.gz; \
-			yes | su -s /bin/sh -c \'make-jpkg jre-8u40-linux-x64.tar.gz\' nobody; \
 			mv -t /build $(notdir $@); \
 		'
 
