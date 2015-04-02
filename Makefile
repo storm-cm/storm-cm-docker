@@ -105,7 +105,6 @@ docker_storm-cm/host.tmp: $(call test-docker-image,storm-cm/debian) host/oracle-
 			set -eu; \
 			deb='$(notdir $(filter %.deb,$^))'; \
 			cat /dev/stdin > "$$deb"; \
-			ls -l "$$deb"; \
 			dpkg -i "$$deb"; \
 		' < $(filter %.deb,$^)
 	$(DOCKER) commit \
